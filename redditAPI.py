@@ -80,3 +80,27 @@ class RedditAPI:
             post["comments"] = self.fetch_comments(post_id=post["post_id"], limit=comment_limit)
         return posts
 
+    def test_subreddit(self, subreddit_name:str):
+        """
+        This function checks if the subreddit exists.
+        :param subreddit_name: The name of the subreddit.
+        """
+        try:
+            subreddit = self.reddit.subreddit(subreddit_name)
+            posts = []
+            for post in subreddit.new(limit=10):
+                posts.append({
+                    "post_id": post.id,
+                    "title": post.title,
+                    "body": post.selftext,
+                    "image": post.url if post.url.lower().endswith(('jpg', 'jpeg', 'png', 'gif')) else None,
+                    "author": str(post.author) if post.author else None,
+                    "upvotes": post.score,
+                    "subreddit": subreddit_name,
+                    "time": datetime.fromtimestamp(post.created_utc).isoformat(),
+            })
+            return True
+        except Exception as e:
+            print(f"Error fetching subreddit {subreddit_name}: {e}")
+            return False
+
