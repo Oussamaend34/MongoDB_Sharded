@@ -6,7 +6,7 @@ app = FastAPI()
 
 # Include routes
 app.include_router(posts_router, prefix="/api", tags=["Reddit Data"])
-# app.include_router(kafka_router, prefix="/api/kafka", tags=["Kafka Data"])
+app.include_router(kafka_router, prefix="/api/kafka", tags=["Kafka Data"])
 
 # Health Check
 @app.get("/")
