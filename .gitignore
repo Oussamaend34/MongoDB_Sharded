@@ -1,7 +1,3 @@
 .venv
-__pycach__
-routes/kafka_routes.py
-KafkaProducer.py
-KafkaConsumer.py
-kafka_config.py
-test_main.http
+__pycache__
+
