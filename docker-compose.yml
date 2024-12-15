@@ -38,9 +38,20 @@ services:
     command: ["mongod", "--bind_ip_all", '--port', '27017']
     networks:
       - kafka-network
+  redis:
+    image: redis:7.0
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: redis-server
+    volumes:
+      - redis_data:/data
+    networks:
+      - kafka-network
 
 volumes:
   mongodb_data:
+  redis_data:
 
 networks:
   kafka-network:
