@@ -1,0 +1,32 @@
+# Use an official Python image as the base
+FROM python:3.10-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the dependencies file
+COPY requirements.txt .
+
+ENV CLIENT_ID 'fWtprROWI1PMYDJWn1_4RQ'
+ENV CLIENT_SECRET 't7Yafyr1Of_Id1h-JZdjD-V85HT_OQ'
+ENV USER_AGENT 'MyApp/0.0.1'
+ENV MONGO_PORT 27017
+ENV DB_NAME 'reddit_data'
+ENV REDIS_HOST 'redis'
+ENV REDIS_PORT 6379
+ENV REDIS_DB 0
+ENV KAFKA_HOST 'kafka'
+ENV KAFKA_PORT 9092
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the FastAPI app code into the container
+COPY ./backend /app
+
+RUN ls
+# Expose the port your FastAPI app runs on
+EXPOSE 8000
+
+# Command to run the app
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

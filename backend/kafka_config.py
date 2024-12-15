@@ -10,7 +10,9 @@ MONGO_HOST = os.getenv('MONGO_HOST', 'localhost')
 KAFKA_HOST = os.getenv('KAFKA_HOST', 'localhost')
 KAFKA_PORT = os.getenv('KAFKA_PORT', 9092)
 
-
+print("MONGO_PORT",MONGO_HOST)
+print("KAFKA_HOST",KAFKA_HOST)
+print("KAFKA_PORT",KAFKA_PORT)
 # Consumer Configuration
 MONGO_URI = f"mongodb://{MONGO_HOST}:{MONGO_PORT}/"
 DB_NAME = os.getenv('DB_NAME', 'reddit_data')

@@ -1,0 +1,22 @@
+{
+    "apps": [
+      {
+        "name": "webapp_cleancars",
+        "script": "index.js",
+        "instances": 1,
+        "autorestart": true,
+        "watch": false,
+        "time": true,
+        "max_memory_restart": "1G",
+        "env": {
+          "NODE_ENV": "production",
+          "DEBUG" :"*"
+        },
+        "error_file": "./logs/err.log",
+        "out_file": "./logs/out.log",
+        "log_file": "./logs/combined.log",
+        "merge_logs": true,
+        "log_date_format": "YYYY-MM-DD HH:mm:ss"
+      }
+    ]
+  }

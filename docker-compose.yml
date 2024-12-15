@@ -20,7 +20,8 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
@@ -48,6 +49,29 @@ services:
       - redis_data:/data
     networks:
       - kafka-network
+
+  backend:
+    image: reddit-api
+    container_name: backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - kafka
+      - mongodb
+      - redis
+    networks:
+      - kafka-network
+
+  frontend:
+    image: frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - kafka-network
+
 
 volumes:
   mongodb_data:
