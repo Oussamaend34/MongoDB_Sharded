@@ -29,16 +29,130 @@ services:
     networks:
       - kafka-network
 
-  mongodb:
+  configsvr1:
     image: mongo:latest
-    container_name: mongodb
+    container_name: configsvr1
+    entrypoint: ['/bin/bash','/scripts/init-config-server.sh']
     ports:
       - "27017:27017"
     volumes:
-      - mongodb_data:/data/db
-    command: ["mongod", "--bind_ip_all", '--port', '27017']
+      - ./scripts:/scripts
+      - configsvr1_data:/data/db
     networks:
       - kafka-network
+  configsvr2:
+    image: mongo:latest
+    container_name: configsvr2
+    command: ["mongod", "--configsvr", "--replSet", "configReplSet", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - "27018:27017"
+    volumes:
+      - configsvr2_data:/data/db
+    networks:
+      - kafka-network
+
+  configsvr3:
+    image: mongo:latest
+    container_name: configsvr3
+    command: [ "mongod", "--configsvr", "--replSet", "configReplSet", "--bind_ip_all", "--port", "27017" ]
+    ports:
+      - "27019:27017"
+    volumes:
+      - configsvr3_data:/data/db
+    networks:
+      - kafka-network
+  # Shard 1 Replica Set
+  shard1a:
+    image: mongo:latest
+    container_name: shard1a
+    entrypoint: ["/bin/bash", "-c",'/scripts/init-shard1.sh']
+    ports:
+      - "27020:27017"
+    volumes:
+      - ./scripts:/scripts
+      - shard1a_data:/data/db
+    networks:
+      - kafka-network
+
+  shard1b:
+    image: mongo:latest
+    container_name: shard1b
+    command: ["mongod", "--shardsvr", "--replSet", "shardReplSet1", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - "27021:27017"
+    volumes:
+      - shard1b_data:/data/db
+    networks:
+      - kafka-network
+
+  shard1c:
+    image: mongo:latest
+    container_name: shard1c
+    command: ["mongod", "--shardsvr", "--replSet", "shardReplSet1", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - "27022:27017"
+    volumes:
+      - shard1c_data:/data/db
+    networks:
+      - kafka-network
+
+  # Shard 2 Replica Set
+  shard2a:
+    image: mongo:latest
+    container_name: shard2a
+    entrypoint: ["/bin/bash", "-c",'/scripts/init-shard2.sh']
+    ports:
+      - "27023:27017"
+    volumes:
+      - ./scripts:/scripts
+      - shard2a_data:/data/db
+    networks:
+      - kafka-network
+
+  shard2b:
+    image: mongo:latest
+    container_name: shard2b
+    command: ["mongod", "--shardsvr", "--replSet", "shardReplSet2", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - "27024:27017"
+    volumes:
+      - shard2b_data:/data/db
+    networks:
+      - kafka-network
+
+  shard2c:
+    image: mongo:latest
+    container_name: shard2c
+    command: ["mongod", "--shardsvr", "--replSet", "shardReplSet2", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - "27025:27017"
+    volumes:
+      - shard2c_data:/data/db
+    networks:
+      - kafka-network
+
+  # Mongos Router
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    entrypoint: ["/bin/bash", "-c",'/scripts/init-router.sh']
+    ports:
+      - "27026:27017"
+    volumes:
+      - ./scripts:/scripts
+    networks:
+      - kafka-network
+    depends_on:
+      - configsvr1
+      - configsvr2
+      - configsvr3
+      - shard1a
+      - shard1b
+      - shard1c
+      - shard2a
+      - shard2b
+      - shard2c
+
   redis:
     image: redis:7.0
     container_name: redis
@@ -59,6 +173,12 @@ services:
       - kafka
       - mongodb
       - redis
+      - configsvr1
+      - configsvr2
+      - shard1a
+      - shard1b
+      - shard2a
+      - shard2b
     networks:
       - kafka-network
 
@@ -74,7 +194,15 @@ services:
 
 
 volumes:
-  mongodb_data:
+  configsvr1_data:
+  configsvr2_data:
+  configsvr3_data:
+  shard1a_data:
+  shard1b_data:
+  shard1c_data:
+  shard2a_data:
+  shard2b_data:
+  shard2c_data:
   redis_data:
 
 networks:
