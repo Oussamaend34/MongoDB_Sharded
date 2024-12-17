@@ -165,7 +165,9 @@ services:
       - kafka-network
 
   backend:
-    image: reddit-api
+    build:
+      context: .
+      dockerfile: Dockerfile-backend
     container_name: backend
     ports:
       - "8000:8000"
@@ -183,7 +185,9 @@ services:
       - kafka-network
 
   frontend:
-    image: frontend
+    build:
+      context: .
+      dockerfile: Dockerfile-frontend
     container_name: frontend
     ports:
       - "5173:5173"

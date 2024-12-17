@@ -3,7 +3,6 @@ from diagrams.onprem.database import MongoDB
 from diagrams.onprem.inmemory import Redis
 from diagrams.onprem.queue import Kafka
 from diagrams.onprem.client import User
-from diagrams.onprem.network import Zookeeper
 from diagrams.programming.framework import FastAPI
 from diagrams.programming.framework import React
 from diagrams.custom import Custom
@@ -29,7 +28,7 @@ with Diagram("Project Architecture", show=False):
     kafka_producer = Kafka("Producer")
     kafka_broker = Kafka("Broker")
     kafka_consumer = Kafka("Consumer")
-    zookeeper = Zookeeper("Zookeeper")
+    # zookeeper = Zookeeper("Zookeeper")
 
     # MongoDB Cluster setup
     mongodb_router >> [shard1, shard2]
@@ -48,4 +47,4 @@ with Diagram("Project Architecture", show=False):
     kafka_consumer>> mongodb_router
 
     # Zookeeper enabling Kafka
-    zookeeper >> kafka_broker
+    # zookeeper >> kafka_broker
