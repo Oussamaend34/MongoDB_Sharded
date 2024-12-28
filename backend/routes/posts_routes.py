@@ -6,7 +6,12 @@ from typing import List
 import json
 posts_router = APIRouter()
 
-
+async def get_posts_comments(post):
+    post["id"] = str(post.pop("_id"))
+    post["comments"] = await comments_collection.find({"post_id": post["post_id"]}).to_list()
+    for comment in post["comments"]:
+        comment["id"] = str(comment.pop("_id"))
+    return post
 
 
 @posts_router.get("/posts/{post_id}", response_model = PostWithComments)
@@ -19,10 +24,7 @@ async def get_post(post_id: str) -> PostWithComments:
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     if post:
-        post["id"] = str(post.pop("_id"))
-        post["comments"] = await comments_collection.find({"post_id": post["post_id"]}).to_list()
-        for comment in post["comments"]:
-            comment["id"] = str(comment.pop("_id"))
+        post = await get_posts_comments(post)
         await redis_client.set(post_id, json.dumps(post), ex= 1800)
     return post
 
@@ -33,8 +35,7 @@ async def get_posts_data(limit:int = 20) -> List[PostWithComments]:
     ]
     posts = await posts_collection.aggregate(pipeline).to_list(length=limit)
     for post in posts:
-        post["comments"] = await comments_collection.find({"post_id": post["post_id"]}).to_list(10)
-
+        post["comments"] = await comments_collection.find({"post_id": post["post_id"]}).to_list()
     return posts
 
 
@@ -46,14 +47,11 @@ async def upvote_post(post_id:str):
     if post:
         post["upvotes"] += 1
         await posts_collection.update_one({"post_id": post['post_id']}, {"$set": post}, upsert=True)
-        post["id"] = str(post.pop("_id"))
-        post["comments"] = await comments_collection.find({"post_id": post["post_id"]}).to_list()
-        for comment in post["comments"]:
-            comment["id"] = str(comment.pop("_id"))
+        post = await get_posts_comments(post)
         await redis_client.set(post_id, json.dumps(post), ex=1800)
     return post
 
-@posts_router.put("/posts/downvote/{post_id}", response_model= Post)
+@posts_router.put("/posts/downvote/{post_id}", response_model= PostWithComments)
 async def downvote_post(post_id:str):
     post = await posts_collection.find_one({"post_id": post_id})
     if not post:
@@ -61,10 +59,7 @@ async def downvote_post(post_id:str):
     if post :
         post["upvotes"] -= 1
         await posts_collection.update_one({"post_id": post['post_id']}, {"$set": post}, upsert=True)
-        post["id"] = str(post.pop("_id"))
-        post["comments"] = await comments_collection.find({"post_id": post["post_id"]}).to_list()
-        for comment in post["comments"]:
-            comment["id"] = str(comment.pop("_id"))
+        post = await get_posts_comments(post)
         await redis_client.set(post_id, json.dumps(post), ex=1800)
     return post
 
