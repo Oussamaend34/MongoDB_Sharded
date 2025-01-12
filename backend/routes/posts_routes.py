@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from database import posts_collection, comments_collection
 from cache_database import redis_client
-from models import Post, PostWithComments
+from models import PostWithComments
 from typing import List
 import json
 posts_router = APIRouter()
