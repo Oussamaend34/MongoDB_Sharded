@@ -3,3 +3,5 @@ __pycache__
 .idea
 ./backend/__pycache__
 ./backend/routes/__pycache__
+./frontend/node_modules/
+./frontendRunEnv/node_modules/
