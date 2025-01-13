@@ -16,7 +16,7 @@ This project leverages modern technologies to create a scalable, efficient, and 
 
 ---
 
-## Architecture  
+## Project Architecture  
 
 ![Project Architecture](project_architecture.png)  
 
@@ -38,16 +38,26 @@ This project leverages modern technologies to create a scalable, efficient, and 
 
 4. **Caching Layer**:  
    - Redis is used for caching frequently accessed data to reduce latency and improve performance.
-   - It works by retreving the data requested by the front-end if not already existed from the mongo data base  
+   - It works by retreving the data requested by the front-end if not already existed from the mongo data base
+---
 
-5. **Database**:  
-   - MongoDB with sharding for distributed and scalable data storage.
-   - It splits the data fetched by Reddit API and store it in differant shards . When needed , the data is retreived .
-     When one of the shards turn down , it is replaced by another one until it runs again maintening availibility of the data
-   - **Components**:  
-     - **Shards**: Partitioned data storage for scalability.  
-     - **Mongos Router**: Routes queries to the appropriate shards.  
-     - **Config Servers**: Maintains metadata for shard configuration.  
+## Database Architecture  
+   When dealing with large-scale data systems, having a robust and scalable database architecture is essential.
+   Our project implements a sharded MongoDB cluster designed for high performance and distributed scalability , All of this
+   is guaranteed through the following Architecture :
+   
+   ![Data Base Architecture](DataBase_Architecture.png)  
+
+The Architecture is composed from three componanats :
+  1. Query Router (Mongos) :      
+     This the service that manages the request comming from the Redis layer to retrieve data , Or from the Back-end layer to
+     store the data retrived using Reddit API
+  3. Replica Sets :         
+     We used two ReplicaSets to divide the storage load between them. Additionally, we ensured that each ReplicaSet possesses three shards to guarantee the availability of our database.
+  5. Config Servers :
+     We configured the main configuration server (configsvr1) to store our metadata. We also configured two additional servers as a backup plan to maintain high availability.         
+
+To ensure that our architecture can be run on different operating systems or environments, the entire architecture is deployed using Docker containers and configured with a combination of Docker Compose file and Bash scripts.
 
 ---
 
