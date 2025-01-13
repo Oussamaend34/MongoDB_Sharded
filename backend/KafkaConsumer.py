@@ -6,7 +6,7 @@ from pymongo.errors import PyMongoError
 
 
 class RedditKafkaConsumer:
-    def __init__(self, kafka_config: Dict[str, str], mongo_uri:str, db_name:str):
+    def __init__(self, kafka_config: Dict[str, str], mongo_uri: str, db_name: str):
         """
         Initialize the RedditKafkaConsumer.
         :param kafka_config: Kafka consumer configuration.
@@ -15,7 +15,7 @@ class RedditKafkaConsumer:
         """
         # Kafka setup
         self.consumer = Consumer(kafka_config)
-        self.consumer.subscribe(['reddit-posts', 'reddit-comments'])
+        self.consumer.subscribe(["reddit-posts", "reddit-comments"])
 
         # Mongodb setup
         self.mongo_client = MongoClient(mongo_uri)
@@ -24,7 +24,7 @@ class RedditKafkaConsumer:
         self.comments_collection = self.db["comments"]
         self.running = True
 
-    def save_to_mongodb(self, topic:str, data:Dict[str, Any]) -> None:
+    def save_to_mongodb(self, topic: str, data: Dict[str, Any]) -> None:
         """
         Save data to the appropriate MongoDB collection based on the topic.
         :param topic: The Kafka topic (either 'reddit-posts' or 'reddit-comments').
@@ -33,12 +33,12 @@ class RedditKafkaConsumer:
         try:
             if topic == "reddit-posts":
                 self.posts_collection.update_one(
-                    {"post_id": data['post_id']}, {"$set": data}, upsert=True
+                    {"post_id": data["post_id"]}, {"$set": data}, upsert=True
                 )
                 print(f"Post {data['post_id']} saved to MongoDB")
             elif topic == "reddit-comments":
                 self.comments_collection.update_one(
-                    {"comment_id": data['comment_id']}, {"$set": data}, upsert=True
+                    {"comment_id": data["comment_id"]}, {"$set": data}, upsert=True
                 )
                 print(f"Comment {data['comment_id']} saved to MongoDB.")
             else:
@@ -65,7 +65,7 @@ class RedditKafkaConsumer:
 
                 topic = msg.topic()
                 try:
-                    data = json.loads(msg.value().decode('utf-8'))
+                    data = json.loads(msg.value().decode("utf-8"))
                     self.save_to_mongodb(topic, data)
                 except json.JSONDecodeError as e:
                     print(f"Error decoding message: {e}")
@@ -81,17 +81,20 @@ class RedditKafkaConsumer:
         self.mongo_client.close()
         self.consumer.close()
 
+
 if __name__ == "__main__":
     # Kafka and MongoDB configurations
     KAFKA_CONFIG = {
-        'bootstrap.servers': 'localhost:9092',
-        'group.id': 'reddit-consumer-group',
-        'auto.offset.reset': 'earliest'
+        "bootstrap.servers": "localhost:9092",
+        "group.id": "reddit-consumer-group",
+        "auto.offset.reset": "earliest",
     }
     MONGO_URI = "mongodb://localhost:27017/"
     DB_NAME = "reddit_data"
 
-    consumer = RedditKafkaConsumer(kafka_config=KAFKA_CONFIG, mongo_uri=MONGO_URI, db_name=DB_NAME)
+    consumer = RedditKafkaConsumer(
+        kafka_config=KAFKA_CONFIG, mongo_uri=MONGO_URI, db_name=DB_NAME
+    )
     try:
         consumer.consume_messages()
     finally:
